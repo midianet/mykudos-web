@@ -24,7 +24,9 @@ setLocale({
     min: ({ min }) => `O campo precisa ter um valor com mais de ${min} caracteres`,
     max: ({ max }) => `O campo precisa ter um valor com menos de ${max} caracteres`,
   },
+  array:{
+    min:({min}) => `O campo precisa ter pelo menos ${min} elemento`
+  },
   boolean: {},
   object: {},
-  array: {},
 });

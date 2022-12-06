@@ -1,6 +1,8 @@
 import { Environment } from '../../../environment';
 import { Api } from '../axios-config';
 
+import {v4 as uid} from 'uuid';
+
 export interface IListagemEvento{
     id: number;
     nome: string;
@@ -9,12 +11,20 @@ export interface IListagemEvento{
 export interface IDetalheEvento{
   id: number;
   nome: string;
+  token?: string;
+  integrantes?: Array<string>;
 }
 
 type TEventoComTotalCount = {
     data: IListagemEvento[];
     totalCount: number;
 }
+
+const newId = uid();
+
+const getUrl = (token?: string): string => {
+  return `${window.location.origin}/kudo/${token}`;
+};
 
 const getAll = async (page = 1, filter = ''): Promise<TEventoComTotalCount | Error> => {
   try{
@@ -47,6 +57,7 @@ const getById = async (id: number): Promise<IDetalheEvento | Error> => {
 };
 
 const create = async (dados: Omit<IDetalheEvento,'id'>): Promise<number | Error> => {
+  dados.token= newId;
   try{
     const { data } = await Api.post<IDetalheEvento>('/eventos', dados);
     if (data) {
@@ -78,6 +89,7 @@ const deleteById = async (id: number): Promise<void | Error> => {
 };
 
 export const EventosService = {
+  getUrl,
   getAll,
   create,
   getById,

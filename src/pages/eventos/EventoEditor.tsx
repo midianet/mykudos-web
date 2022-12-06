@@ -1,12 +1,14 @@
-import { Box, Grid, LinearProgress, Paper} from '@mui/material';
-//import { MuiChipsInput } from 'mui-chips-input'; 
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Box, Grid, IconButton, InputAdornment, LinearProgress, Paper, TextField} from '@mui/material';
+import { FileCopy } from '@mui/icons-material';
+import  * as yup  from 'yup';
+
 import { BarraAcoesEdicao, DialogoConfirmacao } from '../../shared/components';
 import { VForm, VTextField, useVForm, IVFormErrors, VShipField } from '../../shared/forms';
 import { LayoutBase } from '../../shared/layouts';
 import { EventosService } from '../../shared/services/api/eventos/EventosService';
-import  * as yup  from 'yup';
+
 import { useMessageContext } from '../../shared/contexts';
 
 interface IFormData {
@@ -15,7 +17,7 @@ interface IFormData {
 }
 const formValidationSchema: yup.SchemaOf<IFormData> = yup.object().shape({
   nome: yup.string().required().min(3),
-  integrantes: yup.array().min(1)
+  integrantes: yup.array().defined().min(1)
 });
 
 export const EventoEditor: React.FC = () => {
@@ -26,11 +28,7 @@ export const EventoEditor: React.FC = () => {
   const { formRef, save } = useVForm();
   const { showMessage } = useMessageContext();
   const [isOpenDelete, setIsOpenDelete] = useState<boolean>(false);
-  //const [integrantes, setIntegrantes] = useState<string[]>([]);
-  
-  // const handleChange = (integrantes: string[]) => {
-  //   setIntegrantes(integrantes);
-  // };
+  const [url , setUrl] = useState<string>('');
   
   useEffect(() => {
     if(id !== 'novo') {
@@ -43,24 +41,24 @@ export const EventoEditor: React.FC = () => {
             navigate('/eventos');
           }else{
             setTitulo(result.nome);
+            setUrl(EventosService.getUrl(result.token));
             formRef.current?.setData(result);
           }
         });
     }else{
+      setUrl('');
       formRef.current?.setData({
-        nome: ''
+        nome: '',
+        integrantes:[]
       });
     }
   }, [id]);
 
   const handleSave = (dados: IFormData ) => {
-    console.log('aki');
-    console.log(dados);
     formValidationSchema.
       validate(dados, { abortEarly:false })
-      .then((dadosValidos) =>{
+      .then(( dadosValidos ) =>{
         setIsLoading(true);
-        console.log(dadosValidos);
         if(id === 'novo'){
           EventosService.create(dadosValidos)
             .then((result) => {
@@ -155,9 +153,34 @@ export const EventoEditor: React.FC = () => {
                   name="nome"/>
               </Grid>
             </Grid>
+            <Grid container item direction="row" spacing={2} display={id === 'novo' ? 'none' : 'block'}>
+              <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
+                <TextField
+                  label="Url Evento" 
+                  fullWidth
+                  aria-label=''
+                  value={url}
+                  InputProps={{
+                    readOnly: true,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton edge="end" color="primary" onClick={() => navigator.clipboard.writeText(url)}>
+                          <FileCopy/>
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                {/* <TextField
+                  fullWidth
+                  label="Url"
+                  value={url}
+                  disabled={true}/> */}
+              </Grid>
+            </Grid>
             <Grid container item direction="row" spacing={2}>
               <Grid item xs={12} sm={12} md={6} lg={4} xl={4}>
-                {/* <MuiChipsInput name="integrantes" fullWidth value={integrantes} onChange={handleChange} placeholder="Integrantes" /> */}
                 <VShipField name="integrantes" label="Integrantes" fullWidth disabled={isLoading} placeholder="Integrantes" />
               </Grid>
             </Grid>            

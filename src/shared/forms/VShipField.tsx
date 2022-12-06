@@ -7,8 +7,6 @@ import { BaseMuiChipsInputProps } from 'mui-chips-input/dist/index.types';
 
 type TVChipProps = MuiChipsInputProps & FormHelperTextProps & BaseMuiChipsInputProps & {
   name: string;
-  placeholder: string;
-  disabled: boolean
 }
 export const VShipField: React.FC<TVChipProps> = ({ name, placeholder, disabled, ...rest }) => {
   const { fieldName, registerField, defaultValue, error, clearError } = useField(name);
@@ -28,9 +26,7 @@ export const VShipField: React.FC<TVChipProps> = ({ name, placeholder, disabled,
       {...rest}
       error={!!error}
       helperText={error}
-      disabled={disabled || false}
       value={value || []}
-      placeholder={placeholder|| 'Informe os valores'}
       onChange={e => setValue(e)}
       onKeyDown={() => error && clearError()}
     />
